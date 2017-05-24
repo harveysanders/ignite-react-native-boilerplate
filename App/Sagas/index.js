@@ -27,12 +27,17 @@ const api = DebugConfig.useFixtures ? FixtureAPI : API.create()
 
 export default function * root () {
   yield [
+    /*
+      takeLatest does not allow concurrent api calls. If an action gets
+      dispatched while a call is already pending, that pending call is cancelled
+      and only the latest one will be run.
+    */
     // some sagas only receive an action
     takeLatest(StartupTypes.STARTUP, startup),
-    takeLatest(LoginTypes.LOGIN_REQUEST, login),
     takeLatest(OpenScreenTypes.OPEN_SCREEN, openScreen),
 
     // some sagas receive extra parameters in addition to an action
+    takeLatest(LoginTypes.LOGIN_REQUEST, login, api),
     takeLatest(GithubTypes.USER_REQUEST, getUserAvatar, api)
   ]
 }
